@@ -9,10 +9,39 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlencode
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+from logging.config import dictConfig
+import argparse
 
-token = ''
+# set up logger
+logging_config = dict(
+    version = 1,
+    formatters = {
+        'f': {
+            'format': '%(asctime)s [%(levelname)s] %(message)s'
+        }
+    },
+    handlers = {
+        'h': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'f',
+            'level': logging.INFO
+        }
+    },
+    root = {
+        'handlers': ['h'],
+        'level': logging.DEBUG
+    })
+dictConfig(logging_config)
+
+# parse arguments
+parser = argparse.ArgumentParser(prog='tele-wxbot',
+                                 description='WeChat broadcast bot on Telegram')
+parser.add_argument('-t', '--token', help = 'bot token',
+                    required = True)
+
+args = parser.parse_args()
+
+token = args.token
 sckey = {}
 
 debug = True
