@@ -59,9 +59,6 @@ def start(bot, update):
         reply_markup = ReplyKeyboardMarkup(reply_keyboard,
                                            one_time_keyboard = True)
     )
-    update.message.reply_text(
-        'But you have no choice, we only support Server酱 for now.'
-    )
 
     return BROADCAST
 
