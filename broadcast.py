@@ -58,4 +58,5 @@ class Local(Broadcast):
 
         os.system(("convert {} -background '#FFFFFF' -flatten -trim "
                   "{}.png").format(cache.name, out_dir + '/' + uid))
+        os.system("echo {} >> {}/log".format(uid, out_dir))
         cache.close()
