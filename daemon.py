@@ -5,12 +5,11 @@ from telegram.ext import Filters
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from urllib.request import Request, urlopen
-from urllib.parse import urlencode
-
 import logging
 from logging.config import dictConfig
 import argparse
+
+from broadcast import ServerChan
 
 # set up logger
 logging_config = dict(
@@ -42,72 +41,61 @@ parser.add_argument('-t', '--token', help = 'bot token',
 args = parser.parse_args()
 
 token = args.token
-sckey = {}
+broadcast = {}
 
 debug = True
-
-gbot = None
-gupdate = None
 
 updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
-SC_KEY, = range(1)
-
-def send_img(uid, sckey, url):
-    """Send image
-
-    Parameters
-    ----------
-    uid
-        Unique id of this message
-    sckey
-        SCKEY of FT
-    url
-        URL of the image
-    """
-
-    data = urlencode({
-        'text': "WeChat Broadcast from Telegram",
-        'desp': str(uid) + '\n' + url
-    }).encode()
-    urlopen(Request("https://sc.ftqq.com/" + sckey + ".send", data))
+REQUIRE, = range(1)
 
 def start(bot, update):
     update.message.reply_text('Welcome! Please select a boardcast.')
     update.message.reply_text(
         'But you have no choice, we only support Server酱 for now.'
     )
-    update.message.reply_text('Please enter your sckey')
 
-    return SC_KEY
+    broadcast[update.message.chat.id] = ServerChan()
 
-def get_sc_key(bot, update):
-    sckey[update.message.chat.id] = update.message.text
-    update.message.reply_text(
-        'Done. Your sckey is ' + sckey[update.message.chat.id]
-    )
+    return require(bot, update, True)
 
-    return ConversationHandler.END
+def require(bot, update, first = False):
+    bc = broadcast[update.message.chat.id]
+
+    # Read reply
+    if not first:
+        key, setter = bc.need()
+        setter(update.message.text)
+
+        update.message.reply_text(
+            'OK. ' + key + ' is ' + update.message.text + '.'
+        )
+
+    # Try next
+    try:
+        key, _ = bc.need()
+        update.message.reply_text('Please enter your ' + key + '.')
+
+        return REQUIRE
+    except ValueError:
+        update.message.reply_text('Configuratio completed.')
+        return ConversationHandler.END
 
 def sticker(bot, update):
     url = updater.bot.getFile(update.message.sticker.file_id).file_path
+
     try:
-        send_img(update.message.date,
-                 sckey=sckey[update.message.chat.id], url='![](' + url + ')')
+        bc = broadcast[update.message.chat.id]
+        bc.send_img(update.message.date, url)
         update.message.reply_text("Got it!")
     except KeyError:
         update.message.reply_text("/start first")
 
-    if debug:
-        global gbot, gupdate
-        gbot = bot
-        gupdate = update
-
 conv_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
     states={
-        SC_KEY: [MessageHandler(Filters.text, get_sc_key)]
+        REQUIRE: [MessageHandler(Filters.text, require)]
     },
     fallbacks=[]
 )
