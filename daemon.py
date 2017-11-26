@@ -93,12 +93,14 @@ def require(bot, update, first = False):
         return ConversationHandler.END
 
 def sticker(bot, update):
+    update.message.reply_text("Got it! Processing...")
+
     url = updater.bot.getFile(update.message.sticker.file_id).file_path
 
     try:
         bc = broadcast[update.message.chat.id]
         bc.send_img(update.message.date, url)
-        update.message.reply_text("Got it!")
+        update.message.reply_text("Done.")
     except KeyError:
         update.message.reply_text("/start first")
 
