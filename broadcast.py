@@ -45,12 +45,13 @@ class ServerChan(Broadcast):
 
 class Local(Broadcast):
     name = "Local"
-    require_key = ["output"]
+    require_key = ["output dir", "broadcast fifo"]
 
     def send_img(self, uid, url):
         r = urlopen(url)
 
-        out_dir = self.key["output"].replace("ROOT", "/")
+        out_dir = self.key["output dir"].replace("ROOT", "/")
+        fifo = self.key["broadcast fifo"]
         uid = base64.b64encode(str(uid).encode()).decode()
 
         cache = tempfile.NamedTemporaryFile()
@@ -58,5 +59,5 @@ class Local(Broadcast):
 
         os.system(("convert {} -background '#FFFFFF' -flatten -trim "
                   "{}.png").format(cache.name, out_dir + '/' + uid))
-        os.system("echo {} >> {}/log".format(uid, out_dir))
+        os.system("echo {} > {}/{}".format(uid, out_dir, fifo))
         cache.close()
