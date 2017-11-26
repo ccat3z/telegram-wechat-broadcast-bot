@@ -4,6 +4,7 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlencode
 
 class Broadcast(object):
+    name = "Broadcast"
     require_key = []
 
     def __init__(self):
@@ -26,6 +27,7 @@ class Broadcast(object):
         return False
 
 class ServerChan(Broadcast):
+    name = "Server酱"
     require_key = ["sckey"]
 
     def send_img(self, uid, url):

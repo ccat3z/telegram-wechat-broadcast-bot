@@ -48,16 +48,29 @@ debug = True
 updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
-REQUIRE, = range(1)
+AVAILABLE_BROADCAST = dict(map(lambda x: (x.name, x), [ServerChan]))
+BROADCAST, REQUIRE = range(2)
 
 def start(bot, update):
-    update.message.reply_text('Welcome! Please select a boardcast.')
+    reply_keyboard = [list(AVAILABLE_BROADCAST.keys())]
+
+    update.message.reply_text(
+        'Welcome! Please select a boardcast.',
+        reply_markup = ReplyKeyboardMarkup(reply_keyboard,
+                                           one_time_keyboard = True)
+    )
     update.message.reply_text(
         'But you have no choice, we only support Server酱 for now.'
     )
 
-    broadcast[update.message.chat.id] = ServerChan()
+    return BROADCAST
 
+def select_broadcast(bot, update):
+    choice = update.message.text
+    update.message.reply_text(choice + ' is ready!',
+                              reply_markup = ReplyKeyboardRemove())
+
+    broadcast[update.message.chat.id] = AVAILABLE_BROADCAST[choice]()
     return require(bot, update, True)
 
 def require(bot, update, first = False):
@@ -95,7 +108,8 @@ def sticker(bot, update):
 conv_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
     states={
-        REQUIRE: [MessageHandler(Filters.text, require)]
+        REQUIRE: [MessageHandler(Filters.text, require)],
+        BROADCAST: [MessageHandler(Filters.text, select_broadcast)]
     },
     fallbacks=[]
 )
