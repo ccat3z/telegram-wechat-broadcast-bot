@@ -9,7 +9,7 @@ import logging
 from logging.config import dictConfig
 import argparse
 
-from broadcast import ServerChan
+from broadcast import ServerChan, Local
 
 # set up logger
 logging_config = dict(
@@ -48,7 +48,7 @@ debug = True
 updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
-AVAILABLE_BROADCAST = dict(map(lambda x: (x.name, x), [ServerChan]))
+AVAILABLE_BROADCAST = dict(map(lambda x: (x.name, x), [ServerChan, Local]))
 BROADCAST, REQUIRE = range(2)
 
 def start(bot, update):

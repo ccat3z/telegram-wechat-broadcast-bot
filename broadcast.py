@@ -1,4 +1,7 @@
 import copy
+import os
+import base64
+import tempfile
 
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode
@@ -39,3 +42,20 @@ class ServerChan(Broadcast):
             Request("https://sc.ftqq.com/" + self.key["sckey"] + ".send", data)
         )
         return True
+
+class Local(Broadcast):
+    name = "Local"
+    require_key = ["output"]
+
+    def send_img(self, uid, url):
+        r = urlopen(url)
+
+        out_dir = self.key["output"].replace("ROOT", "/")
+        uid = base64.b64encode(str(uid).encode()).decode()
+
+        cache = tempfile.NamedTemporaryFile()
+        cache.file.write(r.read())
+
+        os.system(("convert {} -background '#FFFFFF' -flatten -trim "
+                  "{}.png").format(cache.name, out_dir + '/' + uid))
+        cache.close()
