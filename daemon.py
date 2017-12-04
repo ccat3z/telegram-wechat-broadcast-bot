@@ -96,6 +96,9 @@ def require(bot, update, first = False):
 def sticker(bot, update):
     process_image(bot, update, update.message.sticker.file_id)
 
+def photo(bot, update):
+    process_image(bot, update, update.message.photo[0].file_id)
+
 def process_image(bot, update, file_id):
     update.message.reply_text("Got it! Processing...")
 
@@ -125,5 +128,6 @@ conv_handler = ConversationHandler(
 
 dispatcher.add_handler(conv_handler)
 dispatcher.add_handler(MessageHandler(Filters.sticker, sticker))
+dispatcher.add_handler(MessageHandler(Filters.photo, photo))
 
 updater.start_polling()
