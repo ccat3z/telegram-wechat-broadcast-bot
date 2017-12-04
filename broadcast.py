@@ -22,7 +22,7 @@ class Broadcast(object):
         else:
             return ()
 
-    def _set(self, key, value):
+    def _set(self, key, value, update = None):
         self.key[key] = value
         self._require_key.remove(key)
 
@@ -33,7 +33,7 @@ class ServerChan(Broadcast):
     name = "Server酱"
     require_key = ["sckey"]
 
-    def send_img(self, uid, url):
+    def send_img(self, uid, url, update = None):
         data = urlencode({
             'text': "WeChat Broadcast from Telegram",
             'desp': str(uid) + '\n' + '![](' + url + ')'
@@ -47,7 +47,7 @@ class Local(Broadcast):
     name = "Local"
     require_key = ["output dir", "broadcast fifo"]
 
-    def send_img(self, uid, url):
+    def send_img(self, uid, url, update = None):
         r = urlopen(url)
 
         out_dir = self.key["output dir"].replace("ROOT", "/")

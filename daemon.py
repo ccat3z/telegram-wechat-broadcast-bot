@@ -104,7 +104,7 @@ def sticker(bot, update):
 
     try:
         bc = broadcast[update.message.chat.id]
-        bc.send_img(update.message.date, url)
+        bc.send_img(update.message.date, url, update)
         update.message.reply_text("Done.")
     except KeyError:
         update.message.reply_text("/start first")
