@@ -95,6 +95,11 @@ def require(bot, update, first = False):
 def sticker(bot, update):
     update.message.reply_text("Got it! Processing...")
 
+    if debug:
+        global gbot, gupdate
+        gbot = bot
+        gupdate = update
+
     url = updater.bot.getFile(update.message.sticker.file_id).file_path
 
     try:
