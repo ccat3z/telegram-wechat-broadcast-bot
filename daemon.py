@@ -94,6 +94,9 @@ def require(bot, update, first = False):
         return ConversationHandler.END
 
 def sticker(bot, update):
+    process_image(bot, update, update.message.sticker.file_id)
+
+def process_image(bot, update, file_id):
     update.message.reply_text("Got it! Processing...")
 
     if debug:
@@ -101,7 +104,7 @@ def sticker(bot, update):
         gbot = bot
         gupdate = update
 
-    url = updater.bot.getFile(update.message.sticker.file_id).file_path
+    url = updater.bot.getFile(file_id).file_path
 
     try:
         bc = broadcast[update.message.chat.id]
@@ -109,6 +112,7 @@ def sticker(bot, update):
         update.message.reply_text("Done.")
     except KeyError:
         update.message.reply_text("/start first")
+
 
 conv_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
